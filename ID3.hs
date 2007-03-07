@@ -8,6 +8,7 @@ import Control.Monad ( liftM )
 import Maybe ( fromJust )
 import List ( find, isPrefixOf )
 import System ( system )
+import System.Process ( runInteractiveCommand )
 import IO
 
 data Tag = Tag {
@@ -69,21 +70,16 @@ parseID3v1 text = tag
           parts = lines text
           gen = parseGenre $ drop 60 $ parts !! 1
 
--- runInteractiveCommand / runInteractiveProcess
---id3v1ToTag :: FilePath -> IO (Maybe Tag)
 id3ToTag :: (String -> Tag) -> String -> FilePath -> IO (Maybe Tag)
---id3v1ToTag path = do
 id3ToTag parser tag path = do
-    ret <- system $ "id3v2 -l \"" ++ path ++ "\" >" ++ tmpfile
-    fd <- openFile tmpfile ReadMode
+    (_,fd,_,_) <- runInteractiveCommand $ "id3v2 -l \"" ++ path ++ "\""
     contents <- readBlock fd
     case contents of
         Just content -> do
            c <- content
            return $ Just $ parser c
         Nothing -> return Nothing
-  where tmpfile = "/tmp/parse_id3v1.tmp"
-        readBlock f = do
+  where readBlock f = do
           eof <- hIsEOF f
           if eof
              then do return Nothing
