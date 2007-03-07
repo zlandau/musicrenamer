@@ -1,0 +1,9 @@
+Name:        MusicRenamer
+Version:     0.0
+License:     BSD3
+Author:      Zachary P. Landau
+Synopsis:    Music renamer
+Build-Depends:   base, haskell98
+
+Executable:  musicrenamer
+Main-Is:     MusicRenamer.hs
