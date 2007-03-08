@@ -3,7 +3,6 @@
 --   current setup.  Possibly (or an alternative of) just display the actions we
 --   would have taken
 --      -- Issue here is with ID3v1 tag writing
--- * Comment removing seems broken
 -- * Remove unnecessary imports
 
 module Main where

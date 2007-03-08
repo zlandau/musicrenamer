@@ -104,6 +104,8 @@ id3v2Cmd path tag tagver =
 writeID3v1Tag :: FilePath -> Tag -> IO ()
 writeID3v1Tag path tag = do
     system $ id3v2Cmd path tag "1"
+    -- For some reason, id3v2 won't remove the comment.  Use mp3info for that:
+    system $ "mp3info -c '' \"" ++ path ++ "\""
     return ()
 
 removeID3v1Tag :: FilePath -> IO ()
