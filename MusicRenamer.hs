@@ -251,7 +251,7 @@ parseArgs args = do
  where header = "Usage: musicrenamer [OPTION...] files..."
 
 default_dir :: FilePath
-default_dir = "/tmp/test-id3v2" -- TODO: change this to "."
+default_dir = "."
 
 processDir :: [OptFlag] -> FilePath -> IO ()
 processDir opts dir = do
