@@ -24,32 +24,28 @@ squeeze = unwords . words
 
 parseGenre str = read $ takeWhile (/=')') $ drop 1 $ dropWhile (/='(') str
 
+parseTrack str = read $ takeWhile (/='/') str
+
+fieldLookup :: String -> String -> String -> [(String, String)] -> String
+fieldLookup name1 name2 dfl fields = fromJust $
+    case lookup name1 fields of
+      Just a -> Just a
+      Nothing -> case lookup name2 fields of
+                   Just a -> Just a
+                   Nothing -> Just dfl
+
 parseID3v2 :: String -> Tag
 parseID3v2 text = tag
   where tag = Tag {
-            artist = fromJust $ case lookup "TP1" parts of
-                                  Just a -> Just a
-                                  Nothing -> lookup "TPE1" parts,
-            album = fromJust $ case lookup "TAL" parts of
-                                  Just a -> Just a
-                                  Nothing -> lookup "TALB" parts,
-            title = fromJust $ case lookup "TT2" parts of
-                                  Just a -> Just a
-                                  Nothing -> lookup "TIT2" parts,
-            year = read $ fromJust $ case lookup "TYE" parts of
-                                       Just a -> Just a
-                                       Nothing -> lookup "TYER" parts,
-            genre = parseGenre gen_full,
-            track = read $ fromJust $ case lookup "TRCK" parts of
-                                       Just a -> Just a
-                                       Nothing -> parseTrack
+            artist = fieldLookup "TP1" "TPE1" "Unknown" parts,
+            album = fieldLookup "TAL" "TALB" "Unknown" parts,
+            title = fieldLookup "TT2" "TIT2" "Unknown" parts,
+            year = read $ fieldLookup "TYE" "TYER" "1900" parts,
+            genre = parseGenre $ fieldLookup "TCO" "TCON" "255" parts,
+            track = parseTrack $ fieldLookup "TRCK" "TRK" "0" parts
         }
-        gen_full = fromJust $ case lookup "TCO" parts of
-                                Just a -> Just a
-                                Nothing -> lookup "TCON" parts
         splitParts x = (takeWhile (/=' ') x, drop 2 $ dropWhile (/=':') x)
         parts = map splitParts $ lines text
-        parseTrack = Just $ takeWhile (/='/') $ fromJust $ lookup "TRK" parts
 
 parseID3v1 :: String -> Tag
 parseID3v1 text = tag
