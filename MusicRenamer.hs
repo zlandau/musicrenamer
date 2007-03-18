@@ -49,6 +49,7 @@ data Mp3File = Mp3File {
 data Action = Rename FilePath FilePath |
               WriteTag FilePath TagType Tag |
               RemoveTag FilePath TagType |
+              Warning FilePath String |
               Abort | NoAction
   deriving ( Eq, Show, Read )
 
@@ -124,7 +125,7 @@ getRenameAction file
     | hasID3v2 file          = Rename filename v2_filename
     | hasDecentFilename file = Rename filename sanitized_filename
     | hasID3v1 file          = Rename filename v1_filename
-    | otherwise              = error "No file actions available"
+    | otherwise              = Warning filename "No file actions available"
   where filename = mp3_filename file
         v1_filename = tagToFilename $ fromJust $ v1Tag file
         sanitized_filename = sanitizeFilename $ mp3_filename file
@@ -136,7 +137,7 @@ getTagAction file
     | hasID3v1 file          = WriteTag filename TagID3v1 v1_tag
     | hasID3v2 file          = WriteTag filename TagID3v1 v2_tag
     | hasDecentFilename file = WriteTag filename TagID3v1 fToTag
-    | otherwise              = error "No tag actions available"
+    | otherwise              = Warning filename "No tag actions available"
   where filename = mp3_filename file
         v1_tag = fromJust $ v1Tag file
         v2_tag = fromJust $ v2Tag file
@@ -210,6 +211,7 @@ handleAction (WriteTag name TagID3v1 tag) = putStrLn "writeID3v1Tag" >> writeID3
 handleAction (WriteTag name TagID3v2 tag) = putStrLn "writeID3v2Tag" >> writeID3v2Tag name tag
 handleAction (RemoveTag name TagID3v1) = putStrLn "removeID3v1Tag" >> removeID3v1Tag name
 handleAction (RemoveTag name TagID3v2) = putStrLn "removeID3v2Tag" >> removeID3v2Tag name
+handleAction (Warning name msg) = putStrLn $ "Warning: " ++ name ++ ": " ++ msg
 handleAction (Abort) = putStrLn "abort" >> error "User requested abort"
 handleAction (NoAction) = putStrLn "no action"
 
