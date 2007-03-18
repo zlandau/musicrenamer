@@ -206,13 +206,13 @@ sanitizeAction _ tag = tag
 
 handleAction :: Action -> IO ()
 handleAction (Rename from to) = renameFile_ from to
-handleAction (WriteTag name TagID3v1 tag) = putStrLn "writeID3v1Tag" >> writeID3v1Tag name tag
-handleAction (WriteTag name TagID3v2 tag) = putStrLn "writeID3v2Tag" >> writeID3v2Tag name tag
-handleAction (RemoveTag name TagID3v1) = putStrLn "removeID3v1Tag" >> removeID3v1Tag name
-handleAction (RemoveTag name TagID3v2) = putStrLn "removeID3v2Tag" >> removeID3v2Tag name
+handleAction (WriteTag name TagID3v1 tag) = writeID3v1Tag name tag
+handleAction (WriteTag name TagID3v2 tag) = writeID3v2Tag name tag
+handleAction (RemoveTag name TagID3v1) = removeID3v1Tag name
+handleAction (RemoveTag name TagID3v2) = removeID3v2Tag name
 handleAction (Warning name msg) = putStrLn $ "Warning: " ++ name ++ ": " ++ msg
-handleAction (Abort) = putStrLn "abort" >> error "User requested abort"
-handleAction (NoAction) = putStrLn "no action"
+handleAction (Abort) = error "User requested abort"
+handleAction (NoAction) = return ()
 
 renameFile_ :: FilePath -> FilePath -> IO ()
 renameFile_ from to = do
