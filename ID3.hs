@@ -4,9 +4,8 @@
 -- enough.  Don't use it.  It will eat your children.
 module ID3 ( id3v1ToTag, id3v2ToTag, Tag(Tag), artist, album, title, year, genre, track, writeID3v1Tag, writeID3v2Tag, removeID3v1Tag, removeID3v2Tag ) where
 
-import Control.Monad ( liftM )
 import Maybe ( fromJust )
-import List ( find, isPrefixOf )
+import List ( isPrefixOf )
 import System ( system )
 import System.Process ( runInteractiveCommand )
 import IO
@@ -20,10 +19,13 @@ data Tag = Tag {
     track :: Integer
 } deriving ( Eq, Show, Read )
 
+squeeze :: String -> String
 squeeze = unwords . words
 
+parseGenre :: String -> Integer
 parseGenre str = read $ takeWhile (/=')') $ drop 1 $ dropWhile (/='(') str
 
+parseTrack :: String -> Integer
 parseTrack str = read $ takeWhile (/='/') str
 
 fieldLookup :: String -> String -> String -> [(String, String)] -> String
@@ -119,5 +121,6 @@ removeID3v2Tag path = do
     system $ "id3v2 -d \"" ++ path ++ "\""
     return ()
 
+id3v1ToTag,id3v2ToTag :: FilePath -> IO (Maybe Tag)
 id3v1ToTag = id3ToTag parseID3v1 "id3v1 tag info for"
 id3v2ToTag = id3ToTag parseID3v2 "id3v2 tag info for"

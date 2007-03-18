@@ -9,16 +9,14 @@ module Main where
 
 import ID3 ( id3v1ToTag, id3v2ToTag, Tag(Tag), artist, album, title, year, genre, track, writeID3v1Tag, writeID3v2Tag, removeID3v1Tag, removeID3v2Tag )
 import Control.Monad ( liftM, when )
-import Maybe ( fromJust, isJust, fromMaybe )
+import Maybe ( fromJust, isJust )
 import Directory ( getDirectoryContents, renameFile, setCurrentDirectory,
                    removeFile )
-import Debug.Trace ( trace )
 import List ( isSuffixOf )
 import Char ( isSpace, isAlpha, isDigit, toUpper, toLower )
 import System ( getArgs, system, ExitCode )
-import System.IO ( openFile, hClose, IOMode(ReadMode), hGetContents,
-                   openTempFile, Handle, hPutStrLn, hFlush, hSeek,
-                   SeekMode(AbsoluteSeek) )
+import System.IO ( hClose, hGetContents, openTempFile, Handle, hPutStrLn,
+                   hFlush, hSeek, SeekMode(AbsoluteSeek) )
 import System.Console.GetOpt
 import IO ( stdout )
 
@@ -74,7 +72,7 @@ hasID3v1 :: Mp3File -> Bool
 hasID3v1 file = isJust $ v1Tag file
 hasDecentFilename :: Mp3File -> Bool
 -- TODO: implement this
-hasDecentFilename file = False -- for now
+hasDecentFilename _ = False -- for now
 
 titleExceptions :: [String]
 titleExceptions = [ "the", "a", "an", "it", "the", "in", "and", "or", "to",
@@ -110,12 +108,13 @@ tagToFilename tag = trackNum ++ "-" ++ (cleanup $ title tag) ++ ".mp3"
           trackNum = if length trackStr == 1 then '0':trackStr else trackStr
           trackStr = show $ track tag
 
+fixCase :: String -> String
 fixCase [] = []
 fixCase (c:cs) = toUpper c:map toLower cs
 
 -- TODO: implement this
 filenameToTag :: FilePath -> Tag
-filenameToTag file = Tag {
+filenameToTag _ = Tag {
     artist = "ArtistF", album = "AlbumF", title = "SongF",
     year = 1900, genre = 255, track = 0
 }
@@ -200,8 +199,8 @@ sanitizeTag opts tag = applyMods [artistMod opts, albumMod opts, yearMod opts,
 
 sanitizeAction :: [OptFlag] -> Action -> Action
 sanitizeAction opts (WriteTag file TagID3v1 tag) = WriteTag file TagID3v1 $ sanitizeTag opts tag
-sanitizeAction opts a@(Rename f1 f2) = if f1 == f2 then NoAction else a
-sanitizeAction opts tag = tag
+sanitizeAction _ a@(Rename f1 f2) = if f1 == f2 then NoAction else a
+sanitizeAction _ tag = tag
 -- we generated the rename filenames, so they should always be good.
 -- if this isn't the case, we can sanitize it here
 
@@ -271,6 +270,7 @@ processDir opts dir = do
         actions f = collapse . sanitize $ concatMap getFileActions f
         collapse = filter (/= NoAction)
 
+main :: IO ()
 main = do
     args <- getArgs
     (opts,rest) <- parseArgs args
