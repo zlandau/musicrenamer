@@ -32,7 +32,7 @@ options =
   , Option ['v'] ["verbose"] (NoArg Verbose) "Display actions to stdout"
   , Option ['e'] ["edit"] (NoArg Edit) "Edit the actions before running them"
   , Option ['a'] ["artist"] (ReqArg Artist "ARTIST") "Specify an artist"
-  , Option ['l'] ["album"] (ReqArg Album "ARTIST") "Specify an album"
+  , Option ['l'] ["album"] (ReqArg Album "ALBUM") "Specify an album"
   , Option ['y'] ["year"] (ReqArg Year "YEAR") "Specify a year"
   , Option ['g'] ["genre"] (ReqArg Genre "GENRENUM") "Specify genre as number"
   ]
