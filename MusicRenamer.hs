@@ -205,7 +205,7 @@ sanitizeAction _ tag = tag
 -- if this isn't the case, we can sanitize it here
 
 handleAction :: Action -> IO ()
-handleAction (Rename from to) = renameFile_ from to
+handleAction (Rename from to) = renameFile from to
 handleAction (WriteTag name TagID3v1 tag) = writeID3v1Tag name tag
 handleAction (WriteTag name TagID3v2 tag) = writeID3v2Tag name tag
 handleAction (RemoveTag name TagID3v1) = removeID3v1Tag name
@@ -213,11 +213,6 @@ handleAction (RemoveTag name TagID3v2) = removeID3v2Tag name
 handleAction (Warning name msg) = putStrLn $ "Warning: " ++ name ++ ": " ++ msg
 handleAction (Abort) = error "User requested abort"
 handleAction (NoAction) = return ()
-
-renameFile_ :: FilePath -> FilePath -> IO ()
-renameFile_ from to = do
-    putStrLn $ "renaming " ++ from ++ " to " ++ to
-    renameFile from to
 
 writeActions :: Handle -> [Action] -> IO ()
 writeActions h actions = mapM_ (hPutStrLn h . show) actions
